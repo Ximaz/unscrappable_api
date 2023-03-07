@@ -13,13 +13,16 @@ function nsHashString(s, n) {
     }, 0))).toString()
 }
 
-function nsHashObj(o, n, nsConfig) {
+function nsHashObj(o, n, { i, j }) {
     const _o = {},
-          ns = nsEncode(n || new Date().getTime(), nsConfig)
-    let i = 0;
+          ns = nsEncode(n || new Date().getTime(), { i, j })
+    let z = 0;
 
+    // We need `z` so keys are at their place when doing
+    // Object.keys(o) on hashed object. Else, keys are
+    // sorted by hash which may not be accurate.
     for (const [k, v] of Object.entries(o))
-        _o[`${i++}_${nsHashString(k.toString(), ns)}`] = v
+        _o[`${z++}_${nsHashString(k.toString(), ns)}`] = v
     _o[ns] = nsHashString(ns.toString(), ns)
     return _o
 }
