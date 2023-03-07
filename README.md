@@ -29,7 +29,7 @@ But how to do requests if the keys are hashed ? You have to provide the hashed k
 Finally, in the server, in your `/api/users/` route, you can imagine the following code :
 
 ```js
-route.get('/api/users/', async (req, res, next) => {
+route.get('/users/', async (req, res, next) => {
     const { h, u, n } = req.query
 
     if (!h || !u || !n)
@@ -45,15 +45,20 @@ route.get('/api/users/', async (req, res, next) => {
 
     // Hash the API the same way it was when endpoints
     // got hashed for the /entpoints/ request.
-    const hashedAPI = nsHashObj(apiExample, hashTime, nsConfig)
+    const hashedAPI = nsHashObj(api, hashTime, nsConfig)
 
     // Here, a good `h` value could be getUser.
     // Request : GET /users/?h=<hashed_getUser>&u=Bob&n=<hashed_timestamp>
     if (!Object.keys(hashedAPI).includes(h))
         return res.json({ status: 0, error: `unknowned endpoint : ${h}` })
+    
+    // Here you're free to check add extra checks for
+    // your required query fields, `u` in this example.
+    //
+    // ...
 
     try {
-        return res.json({ status: 200, content: await hashedAPI[h](u) })
+        return res.json({ status: 200, content: hashedAPI[h](u) })
     } catch (e) {
         return res.json({ status: 0, error: e.toString() })
     }
@@ -61,4 +66,4 @@ route.get('/api/users/', async (req, res, next) => {
 ```
 # Security
 
-You **HAVE** to modify the `ns` lib default values to yours and keep them secret. To do so, please, edit the `routes/api.js` file and changes this line : `nsConfig = { i: 423, j: 32 }` by your numerical values. `i` accepts an `Int` or a `Float` whereas `j` can only be binded to an `Int` because it's used for bit shifting operations.
+You **HAVE** to modify the `ns` lib default values to yours and keep them secret. To do so, please, edit the `nsConfig.json` file and change `i` and `j` values by your numerical values. `i` accepts an `Int` or a `Float` whereas `j` can only be binded to an `Int` because it's used for bit shifting operations.
